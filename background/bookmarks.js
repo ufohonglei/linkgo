@@ -1,5 +1,5 @@
 /**
- * Link+ background/bookmarks.js
+ * LinkGo background/bookmarks.js
  * 书签增删改查、缓存管理 / Bookmark CRUD and cache management
  */
 

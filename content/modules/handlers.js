@@ -1,5 +1,5 @@
 /**
- * Link+ handlers.js
+ * LinkGo handlers.js
  * 书签操作处理：保存、编辑、删除、清空、设置 / Bookmark action handlers
  */
 
@@ -22,7 +22,7 @@ LinkPlus.executeCommand = async function() {
   const url = window.location.href;
 
   // 记录日志并检查是否为限制页面
-  console.log('[Link+] ExecuteCommand Save:', { title, finalTag, activeCat: state.activeCategory });
+  console.log('[LinkGo] ExecuteCommand Save:', { title, finalTag, activeCat: state.activeCategory });
 
   if (!url || url.startsWith('chrome://') || url.startsWith('about:') || url.startsWith('edge://')) {
     showToast('空白页或系统页无法存入书签', 'error');
@@ -41,12 +41,7 @@ LinkPlus.executeCommand = async function() {
 
     if (res.success) {
       showToast(`已保存到"${displayTag}"`, 'success');
-      // 先刷新本地列表
       await loadBookmarks();
-      // 云同步（异步，不阻塞）
-      if (LinkPlus.state.isLoggedIn) {
-        LinkPlus.syncCreateBookmark(title, url, displayTag).catch(e => console.log('[Link+] Cloud sync skipped:', e));
-      }
       
       // 不再关闭面板，而是清空输入框并刷新显示
       const input = LinkPlus.shadowRoot.getElementById('linkplus-input');
@@ -64,7 +59,7 @@ LinkPlus.executeCommand = async function() {
       showToast('保存失败：' + (res.message || '请重试'), 'error');
     }
   } catch (e) {
-    console.error('[Link+] Failed to save bookmark:', e);
+    console.error('[LinkGo] Failed to save bookmark:', e);
     showToast('保存失败，请重试', 'error');
   }
 };
@@ -78,7 +73,10 @@ LinkPlus.handleEditBookmark = async function(bookmarkId, currentTitle, currentCa
   const folder = currentCategory || (bm ? bm.folder : '未分类');
   
   // 获取所有现有分类
-  const categories = [...new Set(LinkPlus.state.bookmarks.map(b => b.folder).filter(f => f && f !== 'QuickLink_Data'))];
+  const categories = [...new Set([
+    ...LinkPlus.state.bookmarks.map(b => b.folder),
+    ...(LinkPlus.state.categories || [])
+  ].filter(f => f && f !== 'QuickLink_Data'))];
   if (!categories.includes('未分类')) categories.unshift('未分类');
   
   // 生成分类选项
@@ -89,7 +87,7 @@ LinkPlus.handleEditBookmark = async function(bookmarkId, currentTitle, currentCa
   // 创建自定义编辑弹窗（使用内联样式确保正确显示）
   const modal = document.createElement('div');
   modal.className = 'linkplus-edit-modal';
-  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:2147483647;';
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:2147483647;pointer-events:auto;';
   modal.innerHTML = `
     <div class="linkplus-edit-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;">
       <div class="linkplus-edit-content" style="width:420px;max-width:90vw;background:rgba(30,30,35,0.98);border:1px solid rgba(255,255,255,0.1);border-radius:16px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);display:flex;flex-direction:column;">
@@ -203,21 +201,13 @@ LinkPlus.handleEditBookmark = async function(bookmarkId, currentTitle, currentCa
         LinkPlus.showToast('书签已更新', 'success');
         closeModal();
 
-        // 云同步（如果已登录）
-        if (LinkPlus.state.isLoggedIn && bm) {
-          const updateData = {};
-          if (titleChanged) updateData.title = newTitle;
-          if (categoryChanged) updateData.category = newCategory || '未分类';
-          LinkPlus.syncUpdateBookmarkByUrl(bm.url, updateData);
-        }
-
         await LinkPlus.loadBookmarks();
         LinkPlus.performSearch(LinkPlus.state.searchQuery);
       } else {
         LinkPlus.showToast('更新失败：' + res.error, 'error');
       }
     } catch (e) {
-      console.error('[Link+] Failed to update bookmark:', e);
+      console.error('[LinkGo] Failed to update bookmark:', e);
       LinkPlus.showToast('更新失败，请重试', 'error');
     }
   });
@@ -246,32 +236,20 @@ LinkPlus.handleEditBookmark = async function(bookmarkId, currentTitle, currentCa
 LinkPlus.handleDeleteBookmark = async function(bookmarkId, bookmarkTitle) {
   if (!confirm(`确定要删除书签"${bookmarkTitle}"吗？\n\n此操作无法撤销。`)) return;
 
-  // 先找到书签信息
-  const bm = LinkPlus.state.bookmarks.find(b => b.id === bookmarkId);
-
   try {
-    // 1. 先删除本地书签
     const res = await chrome.runtime.sendMessage({
       action: 'delete-bookmark', bookmarkId,
     });
     
     if (res.success) {
       LinkPlus.showToast('已删除书签', 'success');
-      
-      // 2. 如果已登录，同步删除服务器上的书签（通过 URL 查找）
-      if (LinkPlus.state.isLoggedIn && bm) {
-        LinkPlus.syncDeleteBookmarkByUrl(bm.url).catch(e => 
-          console.log('[Link+] Server delete sync skipped:', e)
-        );
-      }
-      
       await LinkPlus.loadBookmarks();
       LinkPlus.performSearch(LinkPlus.state.searchQuery);
     } else {
       LinkPlus.showToast('删除失败：' + res.error, 'error');
     }
   } catch (e) {
-    console.error('[Link+] Failed to delete bookmark:', e);
+    console.error('[LinkGo] Failed to delete bookmark:', e);
     LinkPlus.showToast('删除失败，请重试', 'error');
   }
 };
@@ -283,15 +261,6 @@ LinkPlus.handleClearAll = async function() {
   if (!confirm('⚠️ 确定要清空所有收藏吗？\n\n此操作将删除所有书签，无法撤销。')) return;
 
   try {
-    // 已登录时先清空云端
-    if (LinkPlus.state.isLoggedIn) {
-      const cloudRes = await LinkPlus.api.clearBookmarks();
-      if (!cloudRes.success) {
-        LinkPlus.showToast('云端清空失败：' + cloudRes.error, 'error');
-        return;
-      }
-    }
-    // 清空本地
     const res = await chrome.runtime.sendMessage({ action: 'clear-all-bookmarks' });
     if (res.success) {
       LinkPlus.showToast(`已清空 ${res.count} 个收藏`, 'success');
@@ -301,8 +270,32 @@ LinkPlus.handleClearAll = async function() {
       LinkPlus.showToast('清空失败：' + res.error, 'error');
     }
   } catch (e) {
-    console.error('[Link+] Failed to clear bookmarks:', e);
+    console.error('[LinkGo] Failed to clear bookmarks:', e);
     LinkPlus.showToast('清空失败，请重试', 'error');
+  }
+};
+
+/**
+ * 新建分类
+ */
+LinkPlus.handleCreateCategory = async function() {
+  const name = prompt('请输入新分类名称');
+  const categoryName = name ? name.trim() : '';
+  if (!categoryName) return;
+
+  try {
+    const res = await chrome.runtime.sendMessage({ action: 'create-category', name: categoryName });
+    if (res.success) {
+      LinkPlus.state.activeCategory = res.data.name;
+      LinkPlus.showToast(`已新建分类"${res.data.name}"`, 'success');
+      await LinkPlus.loadBookmarks();
+      LinkPlus.performSearch(LinkPlus.state.searchQuery || '');
+    } else {
+      LinkPlus.showToast('新建分类失败：' + res.error, 'error');
+    }
+  } catch (e) {
+    console.error('[LinkGo] Failed to create category:', e);
+    LinkPlus.showToast('新建分类失败，请重试', 'error');
   }
 };
 
@@ -314,7 +307,7 @@ LinkPlus.handleOpenSettings = async function() {
     await chrome.runtime.sendMessage({ action: 'open-settings' });
     LinkPlus.showToast('请在打开的页面中设置快捷键', 'success');
   } catch (e) {
-    console.error('[Link+] Failed to open settings:', e);
+    console.error('[LinkGo] Failed to open settings:', e);
     LinkPlus.showToast('无法打开设置页面', 'error');
   }
 };

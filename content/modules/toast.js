@@ -1,5 +1,5 @@
 /**
- * Link+ toast.js
+ * LinkGo toast.js
  * Toast 通知 / Toast notification
  */
 

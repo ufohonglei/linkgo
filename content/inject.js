@@ -1,5 +1,5 @@
 /**
- * Link+ inject.js - 入口文件（第一个加载）
+ * LinkGo inject.js - 入口文件（第一个加载）
  *
  * 加载顺序（由 manifest.json 保证）：
  *   lib/fuse.js
@@ -34,9 +34,7 @@
     commandTag:        null,
     commandTitle:      null,
     activeCategory:    'all',
-    // 云同步相关
-    isLoggedIn:        false,
-    user:              null,
+    categories:        [],
   };
 
   LP.shadowRoot = null;
@@ -61,12 +59,12 @@
     LP.shadowHost = document.createElement('div');
     LP.shadowHost.id = 'linkplus-host';
     // shadowHost 需要 fixed 定位来创建层叠上下文，但子元素使用 fixed 定位时会相对于视口
-    LP.shadowHost.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:2147483647;';
+    LP.shadowHost.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:2147483647;pointer-events:none;';
     LP.shadowRoot = LP.shadowHost.attachShadow({ mode: 'open' });
 
     const style = document.createElement('style');
     const stylesContent = typeof LP.getStyles === 'function' ? LP.getStyles() : '';
-    console.log('[Link+] Styles content length:', stylesContent.length);
+    console.log('[LinkGo] Styles content length:', stylesContent.length);
     style.textContent = stylesContent;
     LP.shadowRoot.appendChild(style);
 
@@ -75,44 +73,44 @@
     LP.shadowRoot.appendChild(container);
 
     document.documentElement.appendChild(LP.shadowHost);
-    console.log('[Link+] Shadow DOM initialized');
+    console.log('[LinkGo] Shadow DOM initialized');
   };
 
   // ── 面板控制 ──
   LP.openSearchPanel = async function() {
-    console.log('[Link+] openSearchPanel called, isSearchOpen:', LP.state.isSearchOpen);
+    console.log('[LinkGo] openSearchPanel called, isSearchOpen:', LP.state.isSearchOpen);
     if (LP.state.isSearchOpen) return;
 
     // 安全检查：确保 UI 模块已加载
     if (typeof LP.createSearchPanel !== 'function') {
-      console.error('[Link+] UI module not loaded yet');
+      console.error('[LinkGo] UI module not loaded yet');
       return;
     }
 
     LP.initShadowDOM();
-    console.log('[Link+] Shadow DOM initialized, shadowRoot:', !!LP.shadowRoot);
+    console.log('[LinkGo] Shadow DOM initialized, shadowRoot:', !!LP.shadowRoot);
 
     const existingOverlay = LP.shadowRoot.getElementById('linkplus-overlay');
-    console.log('[Link+] existing overlay:', !!existingOverlay);
+    console.log('[LinkGo] existing overlay:', !!existingOverlay);
 
     if (!existingOverlay) {
-      console.log('[Link+] Creating search panel...');
+      console.log('[LinkGo] Creating search panel...');
       LP.createSearchPanel();
       LP.createToastContainer();
       try {
         await LP.loadBookmarks();
       } catch (e) {
-        console.error('[Link+] loadBookmarks failed:', e);
+        console.error('[LinkGo] loadBookmarks failed:', e);
       }
     }
 
     const overlay = LP.shadowRoot.getElementById('linkplus-overlay');
     const input   = LP.shadowRoot.getElementById('linkplus-input');
 
-    console.log('[Link+] overlay after create:', !!overlay, 'input:', !!input);
+    console.log('[LinkGo] overlay after create:', !!overlay, 'input:', !!input);
 
     if (!overlay) {
-      console.error('[Link+] overlay not found after creation!');
+      console.error('[LinkGo] overlay not found after creation!');
       return;
     }
 
@@ -122,7 +120,7 @@
     });
 
     overlay.classList.add('active');
-    console.log('[Link+] overlay active class added');
+    console.log('[LinkGo] overlay active class added');
 
     if (input) {
       input.value = '';
@@ -135,7 +133,7 @@
         LP.performSearch('');
       }
     } catch (e) {
-      console.error('[Link+] loadBookmarks failed:', e);
+      console.error('[LinkGo] loadBookmarks failed:', e);
     }
   };
 
@@ -152,7 +150,7 @@
 
   // ── 消息监听 ──
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log('[Link+] Message:', request.action);
+    console.log('[LinkGo] Message:', request.action);
     switch (request.action) {
       case 'toggle-search':
         LP.toggleSearchPanel();
@@ -188,10 +186,6 @@
   // setTimeout(0) 确保 modules/*.js 执行完毕，再初始化
   function init() {
     LP.initShadowDOM();
-    // 同步初始化不阻塞，syncInit 在后台执行
-    if (typeof LP.syncInit === 'function') {
-      LP.syncInit().catch(e => console.log('[Link+] syncInit failed:', e));
-    }
   }
 
   if (document.readyState === 'loading') {
@@ -200,5 +194,5 @@
     setTimeout(init, 0);
   }
 
-  console.log('[Link+] Content script loaded');
+  console.log('[LinkGo] Content script loaded');
 })();

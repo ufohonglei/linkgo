@@ -1,5 +1,5 @@
 /**
- * Link+ search.js
+ * LinkGo search.js
  * 搜索、分类筛选、键盘导航 / Search, category filter, keyboard navigation
  */
 
@@ -10,7 +10,7 @@
  */
 LinkPlus.initFuse = function() {
   if (typeof Fuse === 'undefined') {
-    console.error('[Link+] Fuse.js not loaded');
+    console.error('[LinkGo] Fuse.js not loaded');
     return;
   }
   LinkPlus.state.fuse = new Fuse(LinkPlus.state.bookmarks, {
@@ -23,24 +23,27 @@ LinkPlus.initFuse = function() {
 
 /**
  * 加载书签数据
- * 已登录时从服务器拉取，未登录时读本地
  */
 LinkPlus.loadBookmarks = async function() {
   try {
-    console.log('[Link+] loadBookmarks started, isLoggedIn:', LinkPlus.state.isLoggedIn);
+    console.log('[LinkGo] loadBookmarks started');
     
-    // 始终从本地 Chrome 书签加载（双向同步后本地已包含服务器数据）
     const localRes = await chrome.runtime.sendMessage({ action: 'get-bookmarks' });
     if (localRes.success) {
       LinkPlus.state.bookmarks = localRes.data;
       LinkPlus.initFuse();
-      console.log('[Link+] Bookmarks loaded from local:', LinkPlus.state.bookmarks.length);
+      console.log('[LinkGo] Bookmarks loaded from local:', LinkPlus.state.bookmarks.length);
+    }
+
+    const categoryRes = await chrome.runtime.sendMessage({ action: 'get-categories' });
+    if (categoryRes.success) {
+      LinkPlus.state.categories = categoryRes.data || [];
     }
     
     // 刷新显示
     LinkPlus.performSearch(LinkPlus.state.searchQuery || '');
   } catch (e) {
-    console.error('[Link+] Failed to load bookmarks:', e);
+    console.error('[LinkGo] Failed to load bookmarks:', e);
   }
 };
 
@@ -79,7 +82,7 @@ LinkPlus.parseCommand = function(query) {
  */
 LinkPlus.performSearch = function(query) {
   const { state } = LinkPlus;
-  console.log('[Link+] performSearch, query:', query, 'bookmarks count:', state.bookmarks?.length || 0);
+  console.log('[LinkGo] performSearch, query:', query, 'bookmarks count:', state.bookmarks?.length || 0);
   let results;
 
   if (!query) {
@@ -89,7 +92,7 @@ LinkPlus.performSearch = function(query) {
   } else {
     results = [];
   }
-  console.log('[Link+] performSearch results:', results.length);
+  console.log('[LinkGo] performSearch results:', results.length);
 
   // 分类筛选
   if (state.activeCategory !== 'all') {
@@ -109,19 +112,22 @@ LinkPlus.updateCategoryBar = function() {
   const { state, shadowRoot, escapeHtml } = LinkPlus;
   const bar = shadowRoot.getElementById('linkplus-category-bar');
   if (!bar) {
-    console.log('[Link+] Category bar not found');
+    console.log('[LinkGo] Category bar not found');
     return;
   }
   
-  console.log('[Link+] Updating category bar, bookmarks:', state.bookmarks.length);
+  console.log('[LinkGo] Updating category bar, bookmarks:', state.bookmarks.length);
 
   const map = {};
   state.bookmarks.forEach(b => {
     const cat = b.folder && b.folder !== 'QuickLink_Data' ? b.folder : '未分类';
     map[cat] = (map[cat] || 0) + 1;
   });
+  (state.categories || []).forEach(cat => {
+    if (cat && cat !== 'QuickLink_Data') map[cat] = map[cat] || 0;
+  });
   const categories = Object.keys(map).sort();
-  console.log('[Link+] Categories found:', categories, map);
+  console.log('[LinkGo] Categories found:', categories, map);
 
   if (categories.length === 0) { 
     bar.style.display = 'none'; 
@@ -197,6 +203,6 @@ LinkPlus.openBookmark = async function(url, newTab) {
     await chrome.runtime.sendMessage({ action: 'open-bookmark', url, newTab });
     LinkPlus.closeSearchPanel();
   } catch (e) {
-    console.error('[Link+] Failed to open bookmark:', e);
+    console.error('[LinkGo] Failed to open bookmark:', e);
   }
 };

@@ -1,5 +1,5 @@
 /**
- * Link+ ui.js
+ * LinkGo ui.js
  * UI 渲染与面板创建 / UI rendering and panel creation
  */
 
@@ -19,13 +19,13 @@ const ICONS = {
  * 创建搜索面板
  */
 LinkPlus.createSearchPanel = function() {
-  console.log('[Link+] createSearchPanel called');
+  console.log('[LinkGo] createSearchPanel called');
   const { shadowRoot, closeSearchPanel, handleInput, handleKeyDown,
-    handleOpenTutorial, handleOpenSettings, handleClearAll } = LinkPlus;
+    handleOpenTutorial, handleOpenSettings, handleClearAll, handleCreateCategory } = LinkPlus;
 
-  console.log('[Link+] shadowRoot:', !!shadowRoot);
+  console.log('[LinkGo] shadowRoot:', !!shadowRoot);
   const container = shadowRoot.getElementById('linkplus-container');
-  console.log('[Link+] container:', !!container);
+  console.log('[LinkGo] container:', !!container);
 
   // 遮罩层
   const overlay = document.createElement('div');
@@ -72,11 +72,11 @@ LinkPlus.createSearchPanel = function() {
       <span class="linkplus-key">↑↓</span><span>导航</span>
     </div>
     <div class="linkplus-footer-actions">
-      <button class="linkplus-footer-btn linkplus-footer-auth" id="linkplus-auth-btn" title="登录 Link+">
-        <svg class="linkplus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+      <button class="linkplus-footer-btn linkplus-footer-category" id="linkplus-category-create-btn" title="新建分类">
+        <svg class="linkplus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          ${ICONS.searchCmd}
         </svg>
-        <span>登录</span>
+        <span>分类</span>
       </button>
       <button class="linkplus-footer-btn linkplus-footer-tutorial" id="linkplus-tutorial-btn" title="使用教程">
         <svg class="linkplus-icon" viewBox="0 0 1024 1024" fill="currentColor">${ICONS.tutorial}</svg>
@@ -100,7 +100,7 @@ LinkPlus.createSearchPanel = function() {
   panel.appendChild(footer);
   overlay.appendChild(panel);
   container.appendChild(overlay);
-  console.log('[Link+] overlay appended to container, overlay id:', overlay.id);
+  console.log('[LinkGo] overlay appended to container, overlay id:', overlay.id);
 
   // 绑定事件（添加安全检查）
   shadowRoot.getElementById('linkplus-input').addEventListener('input', handleInput);
@@ -109,8 +109,11 @@ LinkPlus.createSearchPanel = function() {
   const tutorialBtn = shadowRoot.getElementById('linkplus-tutorial-btn');
   const settingsBtn = shadowRoot.getElementById('linkplus-settings-btn');
   const clearBtn = shadowRoot.getElementById('linkplus-clear-btn');
-  const authBtn = shadowRoot.getElementById('linkplus-auth-btn');
+  const categoryCreateBtn = shadowRoot.getElementById('linkplus-category-create-btn');
 
+  if (categoryCreateBtn && typeof handleCreateCategory === 'function') {
+    categoryCreateBtn.addEventListener('click', handleCreateCategory);
+  }
   if (tutorialBtn && typeof handleOpenTutorial === 'function') {
     tutorialBtn.addEventListener('click', handleOpenTutorial);
   }
@@ -120,16 +123,6 @@ LinkPlus.createSearchPanel = function() {
   if (clearBtn && typeof handleClearAll === 'function') {
     clearBtn.addEventListener('click', handleClearAll);
   }
-  if (authBtn && typeof LinkPlus.handleOpenAuth === 'function') {
-    authBtn.addEventListener('click', LinkPlus.handleOpenAuth);
-  }
-
-  // 初始化登录按钮状态（延迟确保 auth.js 已加载）
-  setTimeout(() => {
-    if (typeof LinkPlus.updateAuthButton === 'function') {
-      LinkPlus.updateAuthButton();
-    }
-  }, 0);
 };
 
 /**
@@ -147,20 +140,20 @@ LinkPlus.createToastContainer = function() {
  * 渲染搜索结果
  */
 LinkPlus.renderResults = function(bookmarks) {
-  console.log('[Link+] renderResults called with', bookmarks?.length || 0, 'bookmarks');
+  console.log('[LinkGo] renderResults called with', bookmarks?.length || 0, 'bookmarks');
   const { shadowRoot, state, openBookmark, handleEditBookmark, handleDeleteBookmark } = LinkPlus;
   
   // 如果 Shadow DOM 或面板未初始化，跳过渲染
   if (!shadowRoot) {
-    console.log('[Link+] Shadow DOM not ready, skipping render');
+    console.log('[LinkGo] Shadow DOM not ready, skipping render');
     return;
   }
   
   const container = shadowRoot.getElementById('linkplus-results');
-  console.log('[Link+] results container:', container);
+  console.log('[LinkGo] results container:', container);
   
   if (!container) {
-    console.log('[Link+] Results container not found, skipping render');
+    console.log('[LinkGo] Results container not found, skipping render');
     return;
   }
 
@@ -297,7 +290,7 @@ LinkPlus.handleOpenTutorial = function() {
     <div class="linkplus-tutorial-overlay">
       <div class="linkplus-tutorial-content">
         <div class="linkplus-tutorial-header">
-          <h2>📚 Link+ 使用教程</h2>
+          <h2>📚 LinkGo 使用教程</h2>
           <button class="linkplus-tutorial-close">✕</button>
         </div>
         <div class="linkplus-tutorial-body">
@@ -361,7 +354,7 @@ LinkPlus.handleOpenTutorial = function() {
           <section>
             <h3>🖱️ 右键菜单</h3>
             <ul>
-              <li>在任意网页右键，选择"✨ 一键存入 Link+"</li>
+              <li>在任意网页右键，选择"✨ 一键存入 LinkGo"</li>
               <li>可选择保存到"未分类"、"工作"、"学习"或"稍后阅读"</li>
             </ul>
           </section>

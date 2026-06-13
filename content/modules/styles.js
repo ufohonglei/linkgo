@@ -1,5 +1,5 @@
 /**
- * Link+ styles.js
+ * LinkGo styles.js
  * Shadow DOM 内联样式 / Inline styles for Shadow DOM
  */
 
@@ -413,20 +413,10 @@ LinkPlus.getStyles = function() {
       transform: scale(0.95);
     }
 
-    .linkplus-footer-auth:hover {
-      background: rgba(99, 102, 241, 0.15);
-      border-color: rgba(99, 102, 241, 0.3);
-      color: rgba(99, 102, 241, 0.9);
-    }
-
-    .linkplus-footer-auth.logged-in {
-      color: #10b981;
-    }
-
-    .linkplus-footer-auth.logged-in:hover {
+    .linkplus-footer-category:hover {
       background: rgba(16, 185, 129, 0.15);
       border-color: rgba(16, 185, 129, 0.3);
-      color: #10b981;
+      color: rgba(16, 185, 129, 0.9);
     }
 
     .linkplus-footer-tutorial:hover {
@@ -637,164 +627,5 @@ LinkPlus.getStyles = function() {
       color: rgba(255, 255, 255, 0.7);
     }
 
-    /* ===== 登录/注册弹窗 ===== */
-    .linkplus-auth-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(4px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2147483647;
-      pointer-events: auto;
-    }
-
-    .linkplus-auth-content {
-      width: 400px;
-      max-width: 90vw;
-      background: rgba(30, 30, 35, 0.98);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      overflow: hidden;
-    }
-
-    .linkplus-auth-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .linkplus-auth-title {
-      color: #fff;
-      font-size: 18px;
-      font-weight: 600;
-      margin: 0;
-    }
-
-    .linkplus-auth-close {
-      background: transparent;
-      border: none;
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 20px;
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: all 0.15s ease;
-    }
-
-    .linkplus-auth-close:hover {
-      color: rgba(255, 255, 255, 0.9);
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .linkplus-auth-tabs {
-      display: flex;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .linkplus-auth-tab {
-      flex: 1;
-      padding: 12px;
-      background: transparent;
-      border: none;
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      border-bottom: 2px solid transparent;
-    }
-
-    .linkplus-auth-tab:hover {
-      color: rgba(255, 255, 255, 0.8);
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .linkplus-auth-tab.active {
-      color: #fff;
-      border-bottom-color: #6366f1;
-    }
-
-    .linkplus-auth-form {
-      padding: 20px;
-    }
-
-    .linkplus-auth-field {
-      margin-bottom: 16px;
-    }
-
-    .linkplus-auth-field label {
-      display: block;
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.6);
-      margin-bottom: 6px;
-    }
-
-    .linkplus-auth-field input {
-      width: 100%;
-      padding: 10px 12px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 8px;
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.15s ease;
-    }
-
-    .linkplus-auth-field input:focus {
-      border-color: rgba(99, 102, 241, 0.6);
-    }
-
-    .linkplus-auth-field input::placeholder {
-      color: rgba(255, 255, 255, 0.3);
-    }
-
-    .linkplus-auth-error {
-      min-height: 18px;
-      font-size: 13px;
-      color: #f87171;
-      margin-bottom: 12px;
-    }
-
-    .linkplus-auth-submit {
-      width: 100%;
-      padding: 11px;
-      background: #6366f1;
-      border: none;
-      border-radius: 8px;
-      color: #fff;
-      font-size: 15px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.15s ease;
-    }
-
-    .linkplus-auth-submit:hover {
-      background: #5254cc;
-    }
-
-    .linkplus-auth-submit:active {
-      transform: scale(0.98);
-    }
-
-    .linkplus-auth-submit:disabled {
-      background: rgba(99, 102, 241, 0.5);
-      cursor: not-allowed;
-    }
-
-    .linkplus-auth-tip {
-      text-align: center;
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.3);
-      padding: 0 20px 16px;
-      margin: 0;
-    }
   `;
 };

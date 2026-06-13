@@ -1,10 +1,10 @@
 /**
- * Link+ background/messages.js
+ * LinkGo background/messages.js
  * 来自 content script 的消息处理 / Message handler from content script
  */
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log('[Link+] Message received:', request.action);
+  console.log('[LinkGo] Message received:', request.action);
 
   (async () => {
     switch (request.action) {
@@ -24,6 +24,29 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         try {
           const result = await saveBookmark({ title: request.title, url: request.url }, request.tag);
           sendResponse({ success: true, data: result });
+        } catch (e) {
+          sendResponse({ success: false, error: e.message });
+        }
+        break;
+      }
+
+      case 'get-categories': {
+        const categories = await getCategoryFolders();
+        sendResponse({ success: true, data: categories });
+        break;
+      }
+
+      case 'create-category': {
+        const name = (request.name || '').trim();
+        if (!name) {
+          sendResponse({ success: false, error: '分类名称不能为空' });
+          return;
+        }
+        try {
+          const root = await getOrCreateQuickLinkFolder();
+          const folder = await getOrCreateSubFolder(root.id, name);
+          clearBookmarksCache();
+          sendResponse({ success: true, data: { id: folder.id, name: folder.title } });
         } catch (e) {
           sendResponse({ success: false, error: e.message });
         }
@@ -92,36 +115,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           sendResponse({ success: true });
         } catch (e) {
           sendResponse({ success: false, error: e.message });
-        }
-        break;
-      }
-
-      case 'api-request': {
-        // API 请求代理（绕过 CORS）
-        try {
-          const headers = {
-            'Content-Type': 'application/json',
-          };
-          if (request.token) {
-            headers['Authorization'] = `Bearer ${request.token}`;
-          }
-
-          const response = await fetch(request.url, {
-            method: request.method,
-            headers,
-            body: request.body,
-          });
-
-          const data = await response.json().catch(() => ({}));
-
-          if (!response.ok) {
-            sendResponse({ success: false, error: data.error || `HTTP ${response.status}`, status: response.status });
-          } else {
-            sendResponse({ success: true, data, status: response.status });
-          }
-        } catch (e) {
-          console.error('[Link+] API proxy error:', e);
-          sendResponse({ success: false, error: '无法连接到服务器', status: 0 });
         }
         break;
       }

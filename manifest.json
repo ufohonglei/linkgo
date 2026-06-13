@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Link+",
+  "name": "LinkGo",
   "version": "2.2.0",
   "description": "极简、高效的网页书签管理工具，采用类似 Raycast 的交互逻辑",
-  "author": "Link+ Team",
+  "author": "LinkGo Team",
   
   "permissions": [
     "bookmarks",
@@ -29,9 +29,6 @@
       "js": [
         "lib/fuse.js",
         "content/inject.js",
-        "content/modules/api.js",
-        "content/modules/sync.js",
-        "content/modules/auth.js",
         "content/modules/styles.js",
         "content/modules/ui.js",
         "content/modules/search.js",
@@ -74,6 +71,6 @@
       "16": "icons/icon16.png",
       "32": "icons/icon32.png"
     },
-    "default_title": "Link+ - 点击打开命令面板"
+    "default_title": "LinkGo - 点击打开命令面板"
   }
 }

@@ -1,5 +1,5 @@
 /**
- * Link+ background.js - Service Worker 入口
+ * LinkGo background.js - Service Worker 入口
  *
  * 加载顺序：
  *   background/bookmarks.js  - 书签增删改查 & 缓存
@@ -17,7 +17,7 @@ async function createContextMenus() {
       // 主菜单
       chrome.contextMenus.create({
         id: 'linkplus-main',
-        title: '✨ 一键存入 Link+',
+        title: '✨ 一键存入 LinkGo',
         contexts: ['page', 'link', 'selection'],
         documentUrlPatterns: ['<all_urls>']
       });
@@ -41,13 +41,13 @@ async function createContextMenus() {
       });
     });
   } catch (e) {
-    console.error('[Link+] Failed to create context menus:', e);
+    console.error('[LinkGo] Failed to create context menus:', e);
   }
 }
 
 // ── 安装/更新 ──
 chrome.runtime.onInstalled.addListener(async (details) => {
-  console.log('[Link+] Installed/updated:', details.reason);
+  console.log('[LinkGo] Installed/updated:', details.reason);
   await getOrCreateQuickLinkFolder(); // 确保根文件夹存在
   createContextMenus();
 });
@@ -60,7 +60,7 @@ chrome.bookmarks.onMoved.addListener(() => createContextMenus());
 
 // ── 快捷键 ──
 chrome.commands.onCommand.addListener(async (command, tab) => {
-  console.log('[Link+] Command:', command);
+  console.log('[LinkGo] Command:', command);
 
   if (command === 'toggle-search') {
     try {
@@ -68,13 +68,13 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
     } catch {
       // content script 未注入时动态注入
       try {
-        await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['lib/fuse.js', 'content/inject.js', 'content/modules/api.js', 'content/modules/sync.js', 'content/modules/auth.js', 'content/modules/styles.js', 'content/modules/ui.js', 'content/modules/search.js', 'content/modules/handlers.js', 'content/modules/toast.js'] });
+        await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['lib/fuse.js', 'content/inject.js', 'content/modules/styles.js', 'content/modules/ui.js', 'content/modules/search.js', 'content/modules/handlers.js', 'content/modules/toast.js'] });
         await chrome.scripting.insertCSS({ target: { tabId: tab.id }, files: ['content/style.css'] });
         setTimeout(async () => {
           await chrome.tabs.sendMessage(tab.id, { action: 'toggle-search' });
         }, 100);
       } catch (e) {
-        console.error('[Link+] Inject failed:', e);
+        console.error('[LinkGo] Inject failed:', e);
       }
     }
   }
@@ -109,7 +109,7 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
       // 通知 content script 刷新列表
       try { await chrome.tabs.sendMessage(tab.id, { action: 'refresh-bookmarks' }); } catch {}
     } catch (e) {
-      console.error('[Link+] Quick save failed:', e);
+      console.error('[LinkGo] Quick save failed:', e);
       try { await chrome.tabs.sendMessage(tab.id, { action: 'show-toast', message: '保存失败，请重试', type: 'error' }); } catch {}
     }
   }
@@ -140,9 +140,9 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     // 通知 content script 刷新列表
     try { await chrome.tabs.sendMessage(tab.id, { action: 'refresh-bookmarks' }); } catch {}
   } catch (e) {
-    console.error('[Link+] Context menu save failed:', e);
+    console.error('[LinkGo] Context menu save failed:', e);
     try { await chrome.tabs.sendMessage(tab.id, { action: 'show-toast', message: '保存失败，请重试', type: 'error' }); } catch {}
   }
 });
 
-console.log('[Link+] Background service worker initialized');
+console.log('[LinkGo] Background service worker initialized');
