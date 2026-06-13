@@ -1,4 +1,4 @@
-<img width="3584" height="1184" alt="Gemini_Generated_Image_ukm05fukm05fukm0" src="https://github.com/user-attachments/assets/29bb6a38-fc3e-43c5-ab1b-3842c5cf0466" />
+<img width="1983" height="793" alt="03b55510-2407-4ef1-8ed4-36e571f37be9" src="https://github.com/user-attachments/assets/5da22caf-e903-473c-833e-008ff56a39ee" />
 
 # LinkGo - 极简高效的浏览器书签管理工具
 
@@ -6,7 +6,7 @@
 
 LinkGo 是一个基于 Chrome Extension Manifest V3 开发的浏览器插件，采用类似 Raycast 的交互逻辑，提供极简、高效的网页书签管理体验。
 
-<img width="1715" height="986" alt="image" src="https://github.com/user-attachments/assets/cc578e70-fab6-499b-987e-80946901ceb6" />
+<img width="2570" height="1368" alt="image" src="https://github.com/user-attachments/assets/8f0fdf0a-1849-4cb3-a23d-ef579c04bf47" />
 
 
 
@@ -184,7 +184,7 @@ LinkGo/
 
 | 微信赞赏  |
 |---------|
-![f4728f4ae297b7793e8068c52d9fba70](https://github.com/user-attachments/assets/615c513f-3a49-4a96-b23e-6eea55e485bd)
+<img width="828" height="1124" alt="8763cdd9430fe17d669889bf2ad4e591" src="https://github.com/user-attachments/assets/32ea0765-990e-42e9-91ad-93a183a78c0a" />
 
 > 您的支持是我持续开发的动力！❤️
 
