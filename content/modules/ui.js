@@ -297,14 +297,14 @@ LinkPlus.handleOpenTutorial = function() {
           <section>
             <h3>⌨️ 快捷键</h3>
             <ul>
-              <li><kbd>Alt + Q</kbd> 打开/关闭搜索框</li>
-              <li><kbd>Alt + W</kbd> 快速保存当前页面</li>
+              <li><kbd>Alt/Option + L</kbd> 打开/关闭搜索框</li>
+              <li><kbd>Alt/Option + Shift + L</kbd> 快速保存当前页面</li>
             </ul>
           </section>
           <section>
             <h3>🔍 搜索书签</h3>
             <ol>
-              <li>按 <kbd>Alt + Q</kbd> 打开搜索框</li>
+              <li>按 <kbd>Alt/Option + L</kbd> 打开搜索框</li>
               <li>输入关键词搜索已保存的书签</li>
               <li>使用 <kbd>↑↓</kbd> 键选择，<kbd>Enter</kbd> 直接在新标签页打开</li>
               <li>默认始终在新标签页打开书签，确保工作不被中断</li>
@@ -314,12 +314,12 @@ LinkPlus.handleOpenTutorial = function() {
             <h3>💾 保存书签</h3>
             <div class="linkplus-tutorial-method">
               <h4>方法1：快速保存</h4>
-              <p>按 <kbd>Alt + W</kbd> 直接保存到"未分类"</p>
+              <p>按 <kbd>Alt/Option + Shift + L</kbd> 直接保存到"未分类"</p>
             </div>
             <div class="linkplus-tutorial-method">
               <h4>方法2：命令模式（自定义名称和标签）</h4>
               <ol>
-                <li>按 <kbd>Alt + Q</kbd> 打开搜索框</li>
+                <li>按 <kbd>Alt/Option + L</kbd> 打开搜索框</li>
                 <li>输入格式：<code>+ 自定义标题 #标签</code></li>
                 <li>按 <kbd>Enter</kbd> 保存</li>
               </ol>

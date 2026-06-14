@@ -44,15 +44,15 @@
   "commands": {
     "toggle-search": {
       "suggested_key": {
-        "default": "Alt+Q",
-        "mac": "Command+Shift+P"
+        "default": "Alt+L",
+        "mac": "Alt+L"
       },
       "description": "打开/关闭全局命令面板"
     },
     "quick-save": {
       "suggested_key": {
-        "default": "Alt+W",
-        "mac": "Command+Shift+S"
+        "default": "Alt+Shift+L",
+        "mac": "Alt+Shift+L"
       },
       "description": "静默快速保存当前页面"
     }
